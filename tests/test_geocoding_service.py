@@ -2,7 +2,7 @@ import pytest
 import httpx
 from unittest.mock import patch, MagicMock
 
-from src.agent.tools.geo import GeocodingService
+from src.mcp.tools import GeocodingService
 
 
 @pytest.fixture

@@ -1,6 +1,13 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
+root_path = Path(__file__).parent.parent.parent
+env_path = root_path / '.env'
+
+print(root_path)
+print(env_path)
 
 class Settings(BaseSettings):
     """Класс настроек приложения.
@@ -16,7 +23,8 @@ class Settings(BaseSettings):
         server_port: Порт сервера.
         GEMINI_API: API ключ для Gemini.
     """
-    model_config = SettingsConfigDict(env_file=".env")
+
+    model_config = SettingsConfigDict(env_file=env_path)
     
     # API настройки
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
@@ -31,5 +39,7 @@ class Settings(BaseSettings):
     GEMINI_API: Optional[str] = None
 
 
-# Глобальный экземпляр настроек
 settings = Settings()
+
+if __name__ == "__main__":
+    print(settings.model_dump())

@@ -3,7 +3,7 @@ import httpx
 from unittest.mock import patch, MagicMock
 from datetime import date
 
-from src.agent.tools.weater import WeatherService
+from src.mcp.tools.weater import WeatherService
 
 
 @pytest.fixture
