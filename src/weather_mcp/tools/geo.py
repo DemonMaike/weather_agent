@@ -1,13 +1,12 @@
-import os
 import sys
 import httpx
 from typing import Any
+from pathlib import Path
 
-# Фикс sys.path: абсолютный путь к src/ от geo.py
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))  # tools/ → weather_mcp/ → src/
-sys.path.insert(0, src_path)
+root_path = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(root_path / 'src'))
 
-from utils.config import settings  # Теперь относительно src/, без 'src.'
+from src.utils.config import settings
 
 
 class GeocodingService:

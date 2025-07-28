@@ -1,20 +1,16 @@
-import os
 import sys
 import logging
+from pathlib import Path
 from fastmcp import FastMCP
 
-# Фикс sys.path (абсолютный к src/)
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))  # → src/
-sys.path.insert(0, src_path)
+root_path = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(root_path / 'src'))
 
-# Импорты (теперь работают)
-from weather_mcp.tools.geo import GeocodingService
-from weather_mcp.tools.weater import WeatherService
+from src.weather_mcp.tools.geo import GeocodingService
+from src.weather_mcp.tools.weater import WeatherService
 
-# Отключаем лишние логи (в stderr)
 logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 
-# Создаем FastMCP сервер
 mcp = FastMCP("weather-agent")
 
 
@@ -30,7 +26,6 @@ async def get_weather(city: str, count_days: int = 1) -> str:
         return "Количество дней должно быть от 1 до 7"
 
     try:
-        # Получаем координаты
         geo = GeocodingService()
         geo_result = await geo.get_coordinates(city)
 
@@ -50,7 +45,6 @@ async def get_weather(city: str, count_days: int = 1) -> str:
         if not lat or not lon:
             return f"Некорректные координаты для города '{city}'"
 
-        # Получаем погоду
         weather = WeatherService()
         weather_result = await weather.get_weather(lat, lon, count_days)
 
@@ -63,7 +57,6 @@ async def get_weather(city: str, count_days: int = 1) -> str:
         if not weather_data:
             return f"Не удалось получить данные о погоде для города '{city}'"
 
-        # Форматируем ответ (ваш оригинал)
         response_text = f"🌤️ Прогноз погоды для {city_display_name}\n\n"
 
         if "current" in weather_data:

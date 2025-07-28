@@ -1,35 +1,23 @@
-"""
-Современный ReAct агент с правильной интеграцией MCP через MultiServerMCPClient
-"""
 import asyncio
 import os
 import sys
 import uuid
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, Any
 
-# Современные импорты
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.prebuilt import create_react_agent
 from langgraph.checkpoint.memory import InMemorySaver
 
-# Современная MCP интеграция
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
-# Исправление кодировки для Windows
 if sys.platform == "win32":
-    import codecs
-
     try:
         sys.stdout.reconfigure(encoding='utf-8')
         sys.stdin.reconfigure(encoding='utf-8')
     except AttributeError:
-        try:
-            sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
-            sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
-        except:
-            pass
+        pass
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
@@ -54,14 +42,12 @@ class ModernLangChainReActAgent:
         self.server_path = server_path
         self.max_iterations = max_iterations
         self.agent = None
-        self.tools: List = []
+        self.tools: list = []
         self.initialized = False
         self.mcp_client: Optional[MultiServerMCPClient] = None
 
-        # Память для агента
         self.memory = InMemorySaver()
 
-        # Проверяем API ключ
         self.api_key = api_key or getattr(settings, 'GOOGLE_API_KEY', None)
         if not self.api_key:
             raise ValueError(
@@ -69,8 +55,6 @@ class ModernLangChainReActAgent:
                 "Получите его на https://aistudio.google.com/app/apikey\n"
                 "и установите переменную GOOGLE_API_KEY"
             )
-
-        # Создаем модель Google Gemini
         try:
             self.model = ChatGoogleGenerativeAI(
                 model=settings.LLM_MODEL,
@@ -116,7 +100,6 @@ class ModernLangChainReActAgent:
             server_path_abs = self._resolve_server_path(self.server_path)
             print(f"🚀 Подключение к MCP серверу через MultiServerMCPClient: {server_path_abs}")
 
-            # Создаем современный MCP клиент
             self.mcp_client = MultiServerMCPClient({
                 "weather": {
                     "command": sys.executable,
@@ -127,11 +110,9 @@ class ModernLangChainReActAgent:
 
             print("🔧 Загрузка MCP инструментов...")
 
-            # Загружаем инструменты - это все что нужно!
             self.tools = await self.mcp_client.get_tools()
             print(f"✅ Загружено {len(self.tools)} MCP инструментов: {[t.name for t in self.tools]}")
 
-            # Создаем ReAct агент
             print("🤖 Создание ReAct агента...")
             self.agent = create_react_agent(
                 model=self.model,
@@ -175,7 +156,6 @@ class ModernLangChainReActAgent:
 
             print(f"💭 Обработка: {user_input[:50]}{'...' if len(user_input) > 50 else ''}")
 
-            # Используем агент с уже загруженными инструментами
             response = await self.agent.ainvoke(
                 {"messages": [HumanMessage(content=user_input)]},
                 config=config
@@ -194,12 +174,11 @@ class ModernLangChainReActAgent:
             print(f"🐛 DEBUG: Ошибка в chat: {e}")
             return f"❌ Произошла ошибка: {str(e)}"
 
-    async def get_conversation_history(self, thread_id: str) -> List[Dict[str, Any]]:
+    async def get_conversation_history(self, thread_id: str) -> list[dict[str, Any]]:
         """Получение истории разговора"""
         try:
             config = {"configurable": {"thread_id": thread_id}}
 
-            # Используем метод графа для получения состояния
             state = await self.agent.aget_state(config)
 
             if state and hasattr(state, 'values') and "messages" in state.values:
@@ -229,7 +208,7 @@ class ModernLangChainReActAgent:
             print(f"🐛 Ошибка очистки памяти: {e}")
             return False
 
-    async def get_available_tools(self) -> List[str]:
+    async def get_available_tools(self) -> list[str]:
         """Получение списка доступных MCP инструментов"""
         if not self.initialized:
             await self.initialize_mcp()
@@ -239,9 +218,7 @@ class ModernLangChainReActAgent:
     async def cleanup_mcp(self):
         """Правильная очистка MCP ресурсов"""
         try:
-            # MultiServerMCPClient автоматически управляет соединениями
             if hasattr(self, 'mcp_client') and self.mcp_client:
-                # Если есть метод close, используем его
                 if hasattr(self.mcp_client, 'close'):
                     await self.mcp_client.close()
                 self.mcp_client = None
@@ -258,7 +235,6 @@ class ModernLangChainReActAgent:
 
         except Exception as e:
             print(f"🐛 Ошибка при очистке MCP: {e}")
-            # Принудительно очищаем все ссылки
             self.mcp_client = None
             self.initialized = False
 
@@ -328,7 +304,6 @@ async def main():
         print("=" * 60)
         print("\n🗣️ Начинаем интерактивный чат...")
 
-        # Основной цикл взаимодействия
         while True:
             try:
                 user_input = input("\n🧑 Вы: ").strip()
@@ -373,7 +348,6 @@ async def main():
                         print("🔧 Нет доступных инструментов")
                     continue
 
-                # Обычное сообщение агенту
                 print("🤖 Агент обрабатывает запрос...")
                 response = await agent.chat(user_input, thread_id=session_id)
                 print(f"\n🤖 Агент: {response}")
@@ -396,7 +370,6 @@ async def main():
                 print("🔄 Продолжаем работу...")
                 continue
 
-        # Очищаем ресурсы при завершении
         print("\n🧹 Очистка ресурсов...")
         await agent.cleanup_mcp()
         print("✅ Программа завершена")

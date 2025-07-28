@@ -6,8 +6,6 @@ from typing import Optional
 root_path = Path(__file__).parent.parent.parent
 env_path = root_path / '.env'
 
-print(root_path)
-print(env_path)
 
 class Settings(BaseSettings):
     """Класс настроек приложения.
@@ -25,7 +23,7 @@ class Settings(BaseSettings):
     """
 
     model_config = SettingsConfigDict(env_file=env_path)
-    
+
     # API настройки
     nominatim_base_url: str = "https://nominatim.openstreetmap.org"
     openmeteo_base_url: str = "https://api.open-meteo.com/v1"
@@ -34,6 +32,7 @@ class Settings(BaseSettings):
     # Сервер настройки
     server_host: str = "0.0.0.0"
     server_port: int = 8000
+    server_gradio_port: int = 7860
 
     # LLM настройки
     GOOGLE_API_KEY: Optional[str] = None

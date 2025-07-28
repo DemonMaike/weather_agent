@@ -1,13 +1,13 @@
-import os
 import sys
-
 import httpx
 from typing import Any
 from datetime import date
+from pathlib import Path
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+root_path = Path(__file__).parent.parent.parent.parent
+sys.path.insert(0, str(root_path / 'src'))
 
-from utils.config import settings
+from src.utils.config import settings
 
 
 class WeatherService:
