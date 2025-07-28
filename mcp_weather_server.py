@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Weather MCP Server - точка входа для Claude Desktop
+Weather MCP Server - точка входа для MCP клиента
 """
 import sys
 import os

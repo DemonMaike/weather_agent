@@ -37,6 +37,7 @@ class Settings(BaseSettings):
 
     # LLM настройки
     GOOGLE_API_KEY: Optional[str] = None
+    LLM_MODEL: Optional[str] = None
 
 
 settings = Settings()

@@ -20,6 +20,7 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 # Исправление кодировки для Windows
 if sys.platform == "win32":
     import codecs
+
     try:
         sys.stdout.reconfigure(encoding='utf-8')
         sys.stdin.reconfigure(encoding='utf-8')
@@ -37,6 +38,8 @@ try:
 except ImportError:
     class Settings:
         GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+
     settings = Settings()
 
 
@@ -45,7 +48,8 @@ class ModernLangChainReActAgent:
     Современный ReAct агент с MultiServerMCPClient
     """
 
-    def __init__(self, api_key: Optional[str] = None, max_iterations: int = 20, server_path: str = "weather_mcp/server.py"):
+    def __init__(self, api_key: Optional[str] = None, max_iterations: int = 20,
+                 server_path: str = "weather_mcp/server.py"):
         # Инициализируем атрибуты
         self.server_path = server_path
         self.max_iterations = max_iterations
@@ -69,7 +73,7 @@ class ModernLangChainReActAgent:
         # Создаем модель Google Gemini
         try:
             self.model = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
+                model=settings.LLM_MODEL,
                 google_api_key=self.api_key,
                 temperature=0.1,
                 max_tokens=2048
@@ -89,8 +93,8 @@ class ModernLangChainReActAgent:
             current_dir / "weather_mcp" / "server.py",
             current_dir.parent / "weather_mcp" / "server.py",
             current_dir.parent.parent / "weather_mcp" / "server.py",
-            current_dir.parent / "weather_server.py",
-            current_dir.parent.parent / "weather_server.py",
+            current_dir.parent / "mcp_weather_server.py",
+            current_dir.parent.parent / "mcp_weather_server.py",
             Path(server_path).resolve()
         ]
 
@@ -278,10 +282,10 @@ class ModernLangChainReActAgent:
 
 
 async def create_modern_weather_agent(
-    api_key: Optional[str] = None,
-    with_mcp: bool = True,
-    server_path: str = "weather_mcp/server.py",
-    max_iterations: int = 20
+        api_key: Optional[str] = None,
+        with_mcp: bool = True,
+        server_path: str = "weather_mcp/server.py",
+        max_iterations: int = 20
 ) -> ModernLangChainReActAgent:
     """Фабричная функция для создания современного агента"""
     agent = ModernLangChainReActAgent(
@@ -296,116 +300,117 @@ async def create_modern_weather_agent(
     return agent
 
 
-if __name__ == "__main__":
-    async def main():
-        """Основная функция"""
-        print("🌤️ Запуск Modern ReAct Weather Agent...")
+async def main():
+    """Основная функция"""
+    print("🌤️ Запуск Modern ReAct Weather Agent...")
+    print("=" * 60)
+
+    try:
+        print("🔧 Создание современного агента...")
+        agent = await create_modern_weather_agent()
+
+        if not agent.initialized:
+            print("❌ Не удалось инициализировать агент")
+            return
+
+        session_id = str(uuid.uuid4())
+        tools_list = await agent.get_available_tools()
+
+        print("\n🎉 Modern ReAct Weather Agent готов к работе!")
+        print(f"🔧 Доступные инструменты: {tools_list}")
+        print(f"🆔 Session ID: {session_id[:8]}...")
+        print("\n📝 Команды:")
+        print("  • 'exit', 'quit', 'выход' - завершить работу")
+        print("  • 'clear', 'очистить' - очистить историю диалога")
+        print("  • 'new', 'новый' - начать новую сессию")
+        print("  • 'history', 'история' - показать историю диалога")
+        print("  • 'tools', 'инструменты' - показать доступные инструменты")
         print("=" * 60)
+        print("\n🗣️ Начинаем интерактивный чат...")
 
-        try:
-            print("🔧 Создание современного агента...")
-            agent = await create_modern_weather_agent()
+        # Основной цикл взаимодействия
+        while True:
+            try:
+                user_input = input("\n🧑 Вы: ").strip()
 
-            if not agent.initialized:
-                print("❌ Не удалось инициализировать агент")
-                return
-
-            session_id = str(uuid.uuid4())
-            tools_list = await agent.get_available_tools()
-
-            print("\n🎉 Modern ReAct Weather Agent готов к работе!")
-            print(f"🔧 Доступные инструменты: {tools_list}")
-            print(f"🆔 Session ID: {session_id[:8]}...")
-            print("\n📝 Команды:")
-            print("  • 'exit', 'quit', 'выход' - завершить работу")
-            print("  • 'clear', 'очистить' - очистить историю диалога")
-            print("  • 'new', 'новый' - начать новую сессию")
-            print("  • 'history', 'история' - показать историю диалога")
-            print("  • 'tools', 'инструменты' - показать доступные инструменты")
-            print("=" * 60)
-            print("\n🗣️ Начинаем интерактивный чат...")
-
-            # Основной цикл взаимодействия
-            while True:
-                try:
-                    user_input = input("\n🧑 Вы: ").strip()
-
-                    if not user_input:
-                        continue
-
-                    if user_input.lower() in ['exit', 'quit', 'выход', 'q']:
-                        print("👋 До свидания!")
-                        break
-
-                    elif user_input.lower() in ['clear', 'очистить', 'c']:
-                        success = await agent.clear_memory(session_id)
-                        if success:
-                            print("✅ История диалога очищена")
-                        continue
-
-                    elif user_input.lower() in ['new', 'новый', 'n']:
-                        session_id = str(uuid.uuid4())
-                        print(f"🆕 Начата новая сессия: {session_id[:8]}...")
-                        continue
-
-                    elif user_input.lower() in ['history', 'история', 'h']:
-                        history = await agent.get_conversation_history(session_id)
-                        if history and len(history) > 0:
-                            print("📜 История диалога:")
-                            for i, msg in enumerate(history[-5:], 1):
-                                msg_type = msg.get('type', 'Unknown')
-                                content = str(msg.get('content', ''))
-                                if len(content) > 100:
-                                    content = content[:100] + "..."
-                                print(f"  {i}. {msg_type}: {content}")
-                        else:
-                            print("📜 История диалога пуста")
-                        continue
-
-                    elif user_input.lower() in ['tools', 'инструменты', 't']:
-                        tools = await agent.get_available_tools()
-                        if tools:
-                            print(f"🔧 Доступные инструменты: {', '.join(tools)}")
-                        else:
-                            print("🔧 Нет доступных инструментов")
-                        continue
-
-                    # Обычное сообщение агенту
-                    print("🤖 Агент обрабатывает запрос...")
-                    response = await agent.chat(user_input, thread_id=session_id)
-                    print(f"\n🤖 Агент: {response}")
-
-                except KeyboardInterrupt:
-                    print("\n\n👋 Принудительное завершение (Ctrl+C)")
-                    break
-
-                except EOFError:
-                    print("\n\n👋 Завершение по EOF")
-                    break
-
-                except UnicodeDecodeError as e:
-                    print(f"❌ Ошибка кодировки: {e}")
-                    print("💡 Попробуйте запустить: chcp 65001 (Windows)")
+                if not user_input:
                     continue
 
-                except Exception as e:
-                    print(f"❌ Неожиданная ошибка: {e}")
-                    print("🔄 Продолжаем работу...")
+                if user_input.lower() in ['exit', 'quit', 'выход', 'q']:
+                    print("👋 До свидания!")
+                    break
+
+                elif user_input.lower() in ['clear', 'очистить', 'c']:
+                    success = await agent.clear_memory(session_id)
+                    if success:
+                        print("✅ История диалога очищена")
                     continue
 
-            # Очищаем ресурсы при завершении
-            print("\n🧹 Очистка ресурсов...")
-            await agent.cleanup_mcp()
-            print("✅ Программа завершена")
+                elif user_input.lower() in ['new', 'новый', 'n']:
+                    session_id = str(uuid.uuid4())
+                    print(f"🆕 Начата новая сессия: {session_id[:8]}...")
+                    continue
 
-        except KeyboardInterrupt:
-            print("\n\n👋 Программа прервана пользователем")
+                elif user_input.lower() in ['history', 'история', 'h']:
+                    history = await agent.get_conversation_history(session_id)
+                    if history and len(history) > 0:
+                        print("📜 История диалога:")
+                        for i, msg in enumerate(history[-5:], 1):
+                            msg_type = msg.get('type', 'Unknown')
+                            content = str(msg.get('content', ''))
+                            if len(content) > 100:
+                                content = content[:100] + "..."
+                            print(f"  {i}. {msg_type}: {content}")
+                    else:
+                        print("📜 История диалога пуста")
+                    continue
 
-        except Exception as e:
-            print(f"❌ Критическая ошибка при запуске: {e}")
-            print("🔧 Проверьте:")
-            print("  1. GOOGLE_API_KEY установлен")
-            print("  2. MCP сервер доступен")
-            print("  3. Все зависимости установлены")
+                elif user_input.lower() in ['tools', 'инструменты', 't']:
+                    tools = await agent.get_available_tools()
+                    if tools:
+                        print(f"🔧 Доступные инструменты: {', '.join(tools)}")
+                    else:
+                        print("🔧 Нет доступных инструментов")
+                    continue
 
+                # Обычное сообщение агенту
+                print("🤖 Агент обрабатывает запрос...")
+                response = await agent.chat(user_input, thread_id=session_id)
+                print(f"\n🤖 Агент: {response}")
+
+            except KeyboardInterrupt:
+                print("\n\n👋 Принудительное завершение (Ctrl+C)")
+                break
+
+            except EOFError:
+                print("\n\n👋 Завершение по EOF")
+                break
+
+            except UnicodeDecodeError as e:
+                print(f"❌ Ошибка кодировки: {e}")
+                print("💡 Попробуйте запустить: chcp 65001 (Windows)")
+                continue
+
+            except Exception as e:
+                print(f"❌ Неожиданная ошибка: {e}")
+                print("🔄 Продолжаем работу...")
+                continue
+
+        # Очищаем ресурсы при завершении
+        print("\n🧹 Очистка ресурсов...")
+        await agent.cleanup_mcp()
+        print("✅ Программа завершена")
+
+    except KeyboardInterrupt:
+        print("\n\n👋 Программа прервана пользователем")
+
+    except Exception as e:
+        print(f"❌ Критическая ошибка при запуске: {e}")
+        print("🔧 Проверьте:")
+        print("  1. GOOGLE_API_KEY установлен")
+        print("  2. MCP сервер доступен")
+        print("  3. Все зависимости установлены")
+
+
+if __name__ == "__main__":
     asyncio.run(main())
