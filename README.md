@@ -56,12 +56,15 @@ python gui_run.py
 Для удобства настройки MCP клиентов (Claude Desktop, Cursor AI) в проекте есть скрипт:
 
 ```bash
-python generate_mcp_config.py
+python mcp_config_init.py
 ```
 
 Он автоматически создаст корректный конфиг с учётом вашей операционной системы, путей к Python интерпретатору и серверному скрипту, а также содержит инструкцию по настройке MCP клиента.
 
 Запустите скрипт, следуйте подсказкам — и получите готовый конфиг для подключения агента к MCP клиенту.
+<img width="857" height="111" alt="image" src="https://github.com/user-attachments/assets/eb821f0a-4f73-4ad3-8c6e-5687232bbea9" />
+<img width="951" height="554" alt="image" src="https://github.com/user-attachments/assets/1b282c1c-bba8-4cfd-99c5-de1918580456" />
+
 
 ---
 
