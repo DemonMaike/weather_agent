@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     server_port: int = 8000
 
     # LLM настройки
-    GEMINI_API: Optional[str] = None
+    GOOGLE_API_KEY: Optional[str] = None
 
 
 settings = Settings()
