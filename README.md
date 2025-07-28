@@ -40,12 +40,16 @@ GOOGLE_API_KEY=your_gemini_api_key
 ```bash
 python cli_run.py
 ```
+<img width="1177" height="339" alt="image" src="https://github.com/user-attachments/assets/afb6766e-a08f-49b1-8565-68f35ba2d224" />
+
 
 #### GUI
 
 ```bash
 python gui_run.py
 ```
+<img width="1406" height="633" alt="image" src="https://github.com/user-attachments/assets/d973a14e-7de6-40b2-a28e-9ac3ce70a4cf" />
+
 
 #### MCP конфигурация
 
