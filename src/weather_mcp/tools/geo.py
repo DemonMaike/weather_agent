@@ -6,7 +6,7 @@ from pathlib import Path
 root_path = Path(__file__).parent.parent.parent.parent
 sys.path.insert(0, str(root_path / 'src'))
 
-from src.utils.config import settings
+from utils.config import settings
 
 
 class GeocodingService:
