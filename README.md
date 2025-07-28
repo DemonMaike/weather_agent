@@ -40,24 +40,31 @@ GOOGLE_API_KEY=your_gemini_api_key
 ```bash
 python cli_run.py
 ```
+<img width="1177" height="339" alt="image" src="https://github.com/user-attachments/assets/afb6766e-a08f-49b1-8565-68f35ba2d224" />
+
 
 #### GUI
 
 ```bash
 python gui_run.py
 ```
+<img width="1406" height="633" alt="image" src="https://github.com/user-attachments/assets/d973a14e-7de6-40b2-a28e-9ac3ce70a4cf" />
+
 
 #### MCP конфигурация
 
 Для удобства настройки MCP клиентов (Claude Desktop, Cursor AI) в проекте есть скрипт:
 
 ```bash
-python generate_mcp_config.py
+python mcp_config_init.py
 ```
 
 Он автоматически создаст корректный конфиг с учётом вашей операционной системы, путей к Python интерпретатору и серверному скрипту, а также содержит инструкцию по настройке MCP клиента.
 
 Запустите скрипт, следуйте подсказкам — и получите готовый конфиг для подключения агента к MCP клиенту.
+<img width="857" height="111" alt="image" src="https://github.com/user-attachments/assets/eb821f0a-4f73-4ad3-8c6e-5687232bbea9" />
+<img width="951" height="554" alt="image" src="https://github.com/user-attachments/assets/1b282c1c-bba8-4cfd-99c5-de1918580456" />
+
 
 ---
 
@@ -135,6 +142,6 @@ weather-agent/
 ```
 
 ## Задачи
--[ ] **Баг** react_agent.py не работает команда clear(🐛 Ошибка очистки памяти: 'InMemorySaver' object has no attribute 'adelete_state')
+- [ ] **Баг** react_agent.py не работает команда clear(🐛 Ошибка очистки памяти: 'InMemorySaver' object has no attribute 'adelete_state')
 - [ ] Поправить\дописать тесты
 -  [ ] Redis для кеширования запросов
