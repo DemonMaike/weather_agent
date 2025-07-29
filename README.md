@@ -84,6 +84,35 @@ LLM_MODEL=gemini-2.0-flash
 
 Вы можете указать её в `.env` или экспортировать вручную в окружение.
 
+
+#### 🐳 Docker
+
+Для запуска в контейнере сначала соберите образ:
+
+```bash
+docker build -t weather-agent .
+```
+
+**CLI в Docker:**
+```bash
+docker run -it \
+  -e GOOGLE_API_KEY=your_gemini_api_key \
+  -e LLM_MODEL=gemini-2.0-flash \
+  weather-agent python cli_run.py
+```
+
+**GUI в Docker:**
+```bash
+docker run -p 7860:7860 \
+  -e GOOGLE_API_KEY=your_gemini_api_key \
+  -e LLM_MODEL=gemini-2.0-flash \
+  weather-agent python gui_run.py
+```
+
+После запуска GUI будет доступен по адресу: http://localhost:7860
+
+---
+
 ### 🖥️ Запуск
 
 #### MCP конфигурация
@@ -115,8 +144,6 @@ python gui_run.py
 ```
 <img width="1406" height="633" alt="image" src="https://github.com/user-attachments/assets/d973a14e-7de6-40b2-a28e-9ac3ce70a4cf" />
 
-
----
 
 ## ⚙️ Структура проекта
 
