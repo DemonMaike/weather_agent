@@ -200,10 +200,19 @@ class ModernLangChainReActAgent:
     async def clear_memory(self, thread_id: str) -> bool:
         """Очистка памяти для конкретного потока"""
         try:
-            config = {"configurable": {"thread_id": thread_id}}
-            await self.memory.adelete_state(config)
-            print(f"🧹 Память потока {thread_id[:8]}... очищена")
-            return True
+            # InMemorySaver не имеет adelete_state, используем прямое обращение к storage
+            if hasattr(self.memory, 'storage') and hasattr(self.memory, 'writes'):
+                # Очищаем все чекпоинты для этого thread_id
+                self.memory.storage.pop(thread_id, None)
+                # Очищаем все записи для этого thread_id
+                keys_to_remove = [key for key in self.memory.writes.keys() if key[0] == thread_id]
+                for key in keys_to_remove:
+                    self.memory.writes.pop(key, None)
+                print(f"🧹 Память потока {thread_id[:8]}... очищена")
+                return True
+            else:
+                print(f"🐛 Неподдерживаемый тип памяти: {type(self.memory)}")
+                return False
         except Exception as e:
             print(f"🐛 Ошибка очистки памяти: {e}")
             return False
