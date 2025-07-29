@@ -8,7 +8,7 @@ root_path = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(root_path / 'src'))
 
 from weather_mcp.tools.geo import GeocodingService
-from weather_mcp.tools.weater import WeatherService
+from weather_mcp.tools.weather import WeatherService
 
 logging.basicConfig(level=logging.WARNING, stream=sys.stderr)
 
